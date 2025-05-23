@@ -6,6 +6,8 @@ locals {
     "East US"           = "eus"
     "eastus"            = "eus"
     "east us"           = "eus"
+    "eastus2"           = "eus2"
+    "east us2"          = "eus2"
     "West US"           = "wus"
     "North Central US"  = "ncus"
     "South Central US"  = "scus"
