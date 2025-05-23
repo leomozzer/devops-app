@@ -42,7 +42,7 @@ runs:
 
     - name: Extract files
       uses: a7ul/tar-action@v1.1.0
-      id: extract
+      id: extract-terraform-live
       with:
         command: x
         cwd: ./
@@ -61,7 +61,7 @@ runs:
 
     - name: Extract files
       uses: a7ul/tar-action@v1.1.0
-      id: extract
+      id: extract-terraform-modules
       with:
         command: x
         cwd: ./
