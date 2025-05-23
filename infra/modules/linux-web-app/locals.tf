@@ -37,7 +37,7 @@ locals {
 }
 
 locals {
-  resource_group_name   = "rg-asp-${var.app_name}-${local.region_name_standardize[var.location]}-${var.prefix}"
-  app_service_plan_name = "asp-${var.app_name}-${local.region_name_standardize[var.location]}-${var.prefix}"
-  web_app_name          = "asp-${var.app_name}-${local.region_name_standardize[var.location]}-${var.prefix}"
+  resource_group_name   = "rg-asp-${var.app_name}-${var.environment}-${local.region_name_standardize[var.location]}-${var.prefix}"
+  app_service_plan_name = "asp-${var.app_name}-${var.environment}-${local.region_name_standardize[var.location]}-${var.prefix}"
+  web_app_name          = "asp-${var.app_name}-${var.environment}-${local.region_name_standardize[var.location]}-${var.prefix}"
 }
