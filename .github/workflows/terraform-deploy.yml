@@ -56,7 +56,7 @@ jobs:
         AZURE_SP: ${{ secrets.AZURE_SP }}
         RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
         RESOURCE_GROUP_LOCATION: ${{ env.RESOURCE_GROUP_LOCATION }}
-        TAGS: '"UseCase=Terraform" "Stage=${{ github.job }}" "RunNumber=${{ github.run_number }}"'
+        TAGS: '"UseCase=Terraform" "Stage=${{ matrix.stage }}" "RunNumber=${{ github.run_number }}"'
         STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
 
     - uses: "./.github/actions/terraform-plan"
