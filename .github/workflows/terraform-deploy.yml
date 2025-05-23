@@ -7,6 +7,8 @@ env:
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  STA_RESOURCE_GROUP_NAME: rg-tfstate
+  RESOURCE_GROUP_LOCATION: westeurope
 
 jobs:
   tfsec:
@@ -52,19 +54,19 @@ jobs:
     - uses: "./.github/actions/azure-backend"
       with:
         AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "policy-as-code-tfstate-${{ matrix.stage }}-rg"
-        RESOURCE_GROUP_LOCATION: "eastus"
-        TAGS: '"UseCase=Terraform" "Stage=${{ github.job }}" "Deployed=GitHub Actions" Repository=${{ steps.split.outputs._1 }} "RunNumber=${{ github.run_number }}"'
-        STORAGE_ACCOUNT_NAME: "stacpolicyascode${{ matrix.stage }}"
+        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
+        RESOURCE_GROUP_LOCATION: ${{ env.RESOURCE_GROUP_LOCATION }}
+        TAGS: '"UseCase=Terraform" "Stage=${{ github.job }}" "RunNumber=${{ github.run_number }}"'
+        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
 
     - uses: "./.github/actions/terraform-plan"
       with:
         WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
         AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "policy-as-code-tfstate-${{ matrix.stage }}-rg"
-        STORAGE_ACCOUNT_NAME: "stacpolicyascode${{ matrix.stage }}"
+        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
+        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
         CONTAINER_NAME: "states"
-        STATE_FILE: "policy-as-code.tfstate"
+        STATE_FILE: "${{ matrix.stage }}.tfstate"
         STAGE: "${{ matrix.stage }}"
 
   # apply:
