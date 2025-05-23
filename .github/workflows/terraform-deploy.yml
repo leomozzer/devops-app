@@ -58,6 +58,7 @@ jobs:
         RESOURCE_GROUP_LOCATION: ${{ env.RESOURCE_GROUP_LOCATION }}
         TAGS: '"UseCase=Terraform" "Stage=${{ matrix.stage }}" "RunNumber=${{ github.run_number }}"'
         STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
+        ENVIRONMENT: ${{ matrix.stage }}
 
     - uses: "./.github/actions/terraform-plan"
       with:

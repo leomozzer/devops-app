@@ -50,6 +50,18 @@ runs:
       run: |
         touch ${{ inputs.WORKING_DIR }}/${{ inputs.STAGE }}.tfvars
 
+    - name: Download ${{ inputs.STAGE }}.tfvars
+      uses: azure/CLI@v1
+      working-directory: ${{ inputs.WORKING_DIR }}
+      with:
+        azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
+        inlineScript: |
+          az storage blob download \
+          --file ${{ inputs.STAGE }}.tfvars \
+          --name ${{ inputs.STAGE }}.tfvars \
+          --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
+          --container-name plans
+
     - name: Create backend file
       shell: pwsh
       run: |
