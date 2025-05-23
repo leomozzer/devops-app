@@ -52,10 +52,10 @@ runs:
 
     - name: Download ${{ inputs.STAGE }}.tfvars
       uses: azure/CLI@v1
-      working-directory: ${{ inputs.WORKING_DIR }}
       with:
         azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
         inlineScript: |
+          cd ${{ inputs.WORKING_DIR }}
           az storage blob download \
           --file ${{ inputs.STAGE }}.tfvars \
           --name ${{ inputs.STAGE }}.tfvars \
