@@ -120,7 +120,7 @@ runs:
         command: c
         cwd: ${{ inputs.WORKING_DIR }}
         files: |
-          ./terraform-modules
+          ./infra/modules
         outPath: terraform-modules-${{ inputs.STAGE }}-${{ github.run_number }}.tar
 
     - name: Copy ${{ inputs.STAGE }} modules to Storage
