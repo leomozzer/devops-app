@@ -55,6 +55,14 @@ jobs:
             --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
             --container-name ${{ inputs.CONTAINER_NAME }}
             tar -xvf terraform-live.tar -C ./
+      
+      - name: Extract files
+        uses: a7ul/tar-action@v1.1.0
+        id: extract
+        with:
+          command: x
+          cwd: ./
+          files: terraform-modules.tar
 
       - name: Copy ${{ inputs.STAGE }} modules from Storage
         uses: azure/CLI@v1
