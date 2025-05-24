@@ -37,5 +37,5 @@ runs:
     #   shell: bash
 
     - uses: montudor/action-zip@v1
-      run: zip -qq -r app.zip dist package.json package-lock.json node_modules
-      working-directory: ${{inputs.WORKING_DIR}}
+      with:
+        args: zip -qq -r app.zip . -i dist package.json package-lock.json node_modules
