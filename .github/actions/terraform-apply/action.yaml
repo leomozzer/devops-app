@@ -18,6 +18,10 @@ inputs:
   STAGE:
     description: "Deployment stage"
     required: true
+  CREATE_OUTPUT:
+    description: "Create output file"
+    required: false
+    default: "true"
 
 runs:
   using: "composite"
@@ -84,6 +88,7 @@ runs:
 
     - name: Save output ${{ inputs.STAGE }}.json
       uses: azure/CLI@v1
+      if: ${{ inputs.CREATE_OUTPUT}}
       with:
         azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
         inlineScript: |
