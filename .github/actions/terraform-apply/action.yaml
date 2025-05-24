@@ -96,5 +96,5 @@ runs:
           --file ${{ inputs.STAGE }}.json \
           --name ${{ inputs.STAGE }}.json \
           --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
-          --container-name output
+          --container-name output \
           --overwrite
