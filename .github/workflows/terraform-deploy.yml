@@ -86,3 +86,9 @@ jobs:
         AZURE_SP: ${{ secrets.AZURE_SP }}
         STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
         STAGE: "${{ matrix.stage }}"
+
+    - name: Terraform Apply
+      shell: bash
+      run:
+        terraform output
+      working-directory: ./

@@ -1,11 +1,11 @@
-name: 'Terraform Apply'
+name: "Terraform Apply"
 description: "Performs the terraform apply"
 
 inputs:
   AZURE_CLI_VERSION:
     description: "Azure cli version"
     required: false
-    default: 'latest'
+    default: "latest"
   WORKING_DIR:
     description: "working directory"
     required: true
@@ -74,6 +74,21 @@ runs:
 
     - name: Terraform Apply
       shell: bash
-      run:
-        terraform apply -lock-timeout=10m "${{ inputs.STAGE }}.plan"
+      run: terraform apply -lock-timeout=10m "${{ inputs.STAGE }}.plan"
       working-directory: ./
+
+    - name: Terraform Apply
+      shell: bash
+      run: terraform output -json > "${{ inputs.STAGE }}.json"
+      working-directory: ./
+
+    - name: Save output ${{ inputs.STAGE }}.json
+      uses: azure/CLI@v1
+      with:
+        azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
+        inlineScript: |
+          az storage blob upload \
+          --file ${{ inputs.STAGE }}.json \
+          --name ${{ inputs.STAGE }}.json \
+          --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
+          --container-name plans
