@@ -88,7 +88,7 @@ runs:
 
     - name: Save output ${{ inputs.STAGE }}.json
       uses: azure/CLI@v1
-      if: ${{ inputs.CREATE_OUTPUT}}
+      if: ${{ inputs.CREATE_OUTPUT }}
       with:
         azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
         inlineScript: |
