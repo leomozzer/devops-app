@@ -52,7 +52,7 @@ jobs:
 
     - uses: "./.github/actions/node-build"
       with:
-        WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
+        WORKING_DIR: "./backend"
         AZURE_SP: ${{ secrets.AZURE_SP }}
 
   plan:
