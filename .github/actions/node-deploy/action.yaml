@@ -88,11 +88,6 @@ runs:
       working-directory: ${{ inputs.WORKING_DIR }}
       shell: bash
 
-    - name: Display Parsed Outputs
-      run: |
-        echo "Web App Name from previous step: ${{ steps.parse_outputs.outputs.web_app_name }}"
-      shell: bash
-
     - name: Deploy to Azure Web App
       id: deploy-webapp # Give this step an ID to potentially get outputs if needed
       uses: azure/webapps-deploy@v2
