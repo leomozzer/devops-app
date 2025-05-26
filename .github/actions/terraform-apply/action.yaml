@@ -100,6 +100,7 @@ runs:
         echo "$TERRAFORM_JSON_OUTPUT" > "${{ inputs.STAGE }}.json"
 
         echo "Terraform outputs saved to ${{ inputs.STAGE }}.json"
+      shell: bash
 
     - name: Save output ${{ inputs.STAGE }}.json
       uses: azure/CLI@v1
