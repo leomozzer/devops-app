@@ -36,13 +36,20 @@ runs:
     # - run: npm test
     #   shell: bash
 
-    - uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r app.zip . -i dist package.json package-lock.json node_modules
+    - name: Create deployment zip artifact
+      run: |
+        # Navigate into the backend folder to zip its contents
+        cd ${{inputs.WORKING_DIR}}
+        zip -r deploy.zip dist node_modules package.json package-lock.json
+        # The 'deploy.zip' will be created inside the 'backend' folder
+
+    # - uses: montudor/action-zip@v1
+    #   with:
+    #     args: zip -qq -r app.zip . -i dist package.json package-lock.json node_modules
     
     - name: 'Upload Artifact'
       uses: actions/upload-artifact@v4
       with:
-        name: app.zip
-        path: app.zip
+        name: deploy.zip
+        path: ${{inputs.WORKING_DIR}}/deploy.zip
         retention-days: 5
