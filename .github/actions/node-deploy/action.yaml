@@ -48,3 +48,10 @@ runs:
       run: ls -ltr
       working-directory: ${{ inputs.WORKING_DIR }}
       shell: bash
+
+    - name: Read ${{ inputs.STAGE }}.json
+      run: cat ${{ inputs.STAGE }}.json
+      working-directory: ${{ inputs.WORKING_DIR }}
+      shell: bash
+
+    
