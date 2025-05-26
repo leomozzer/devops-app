@@ -1,0 +1,46 @@
+name: "Deploy NestJS app"
+description: "Perform the deployment of NestJS app into App Service"
+
+inputs:
+  AZURE_SP:
+    description: "Credentials of the Azure SP"
+    required: true
+  STORAGE_ACCOUNT_NAME:
+    description: "Name of the storage account"
+    required: true
+  STAGE:
+    description: "Deployment stage"
+    required: true
+  WORKING_DIR:
+    description: "Directory where the app is located"
+    required: false
+    default: "./"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ inputs.AZURE_SP }}
+
+    - name: Download a single artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: deploy
+
+    - name: Download ${{ inputs.STAGE }} output from Storage
+      uses: azure/CLI@v1
+      with:
+        azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
+        inlineScript: |
+          az storage blob download \
+          --file ${{ inputs.STAGE }}.json \
+          --name ${{ inputs.STAGE }}.json \
+          --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
+          --container-name output
+
+    - name: Show directory
+      run: ls -ltr
+      working-directory: ${{ inputs.WORKING_DIR }
+      shell: bash
