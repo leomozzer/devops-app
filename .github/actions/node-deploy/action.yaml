@@ -98,8 +98,7 @@ runs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ steps.parse_outputs.outputs.web_app_name }} # e.g., my-nestjs-app-unique
-        resource-group: ${{ steps.parse_outputs.outputs.resource_group_name }} # e.g., nestjs-app-rg
-        package: ${{ inputs.WORKING_DIR }}/deploy.zip # Path to your .zip file relative to the repo root
+        package: ./deploy.zip # Path to your .zip file relative to the repo root
         # Optionally, specify the startup command if it's different or for clarity
         startup-command: "npm run start:prod"
 
