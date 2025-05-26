@@ -60,6 +60,20 @@ runs:
         # Assuming terraform_outputs.json is in the root of your repository or downloaded to '.'
         TERRAFORM_OUTPUTS=$(cat ${{ inputs.STAGE }}.json)
 
+        # Create a temporary file with the modified content
+        tail -n +2 ${{ inputs.STAGE }}.json > temp-${{ inputs.STAGE }}.json
+
+        # Overwrite the original file with the content of the temporary file
+        mv temp-${{ inputs.STAGE }}.json ${{ inputs.STAGE }}.json
+
+        # Create a temporary file with the modified content
+        head -n -4 ${{ inputs.STAGE }}.json > temp-${{ inputs.STAGE }}.json
+
+        # Overwrite the original file with the content of the temporary file
+        mv temp-${{ inputs.STAGE }}.json ${{ inputs.STAGE }}.json
+
+        TERRAFORM_OUTPUTS=$(cat ${{ inputs.STAGE }}.json)
+
         # Extract a specific output using jq
         # For a simple string output:
         WEB_APP_NAME=$(echo "$TERRAFORM_OUTPUTS" | jq -r '.app_service.value.web_app_name')
