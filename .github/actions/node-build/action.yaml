@@ -42,6 +42,7 @@ runs:
         cd ${{inputs.WORKING_DIR}}
         zip -r deploy.zip dist node_modules package.json package-lock.json
         # The 'deploy.zip' will be created inside the 'backend' folder
+      shell: bash
 
     # - uses: montudor/action-zip@v1
     #   with:
