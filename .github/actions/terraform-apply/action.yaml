@@ -83,7 +83,7 @@ runs:
 
     - name: Terraform Apply
       shell: bash
-      run: terraform output -json > "${{ inputs.STAGE }}.json"
+      run: terraform output -json > "${{ inputs.STAGE }}.json" 2>/dev/null
       working-directory: ./
 
     - name: Save output ${{ inputs.STAGE }}.json
