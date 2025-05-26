@@ -5,6 +5,10 @@ inputs:
   AZURE_SP:
     description: "Credentials of the Azure SP"
     required: true
+  AZURE_CLI_VERSION:
+    description: "Azure cli version"
+    required: false
+    default: "latest"
   STORAGE_ACCOUNT_NAME:
     description: "Name of the storage account"
     required: true
