@@ -55,6 +55,7 @@ runs:
       shell: bash
 
     - name: Read ${{ inputs.STAGE }}.json
+      id: read_json
       run: |
         # Read the JSON file
         # Assuming terraform_outputs.json is in the root of your repository or downloaded to '.'
@@ -92,7 +93,7 @@ runs:
       id: deploy-webapp # Give this step an ID to potentially get outputs if needed
       uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ steps.parse_outputs.outputs.web_app_name }} # e.g., my-nestjs-app-unique
+        app-name: ${{ steps.read_json.outputs.web_app_name }} # e.g., my-nestjs-app-unique
         package: ./deploy.zip # Path to your .zip file relative to the repo root
         # Optionally, specify the startup command if it's different or for clarity
         startup-command: "npm run start:prod"
