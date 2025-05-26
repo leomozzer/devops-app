@@ -54,4 +54,21 @@ runs:
       working-directory: ${{ inputs.WORKING_DIR }}
       shell: bash
 
+    - name: Web App Name
+      run: |
+        # Read the JSON file
+        # Assuming terraform_outputs.json is in the root of your repository or downloaded to '.'
+        TERRAFORM_OUTPUTS=$(cat ${{ inputs.STAGE }}.json)
+
+        # Extract a specific output using jq
+        # For a simple string output:
+        WEB_APP_NAME=$(echo "$TERRAFORM_OUTPUTS" | jq -r '.app_service.value.web_app_name')
+
+        # Set the extracted value as a step output
+        echo "web_app_NAME=$WEB_APP_NAME" >> "$GITHUB_OUTPUT"
+
+        echo "Extracted Web App Hostname: $WEB_APP_NAME"
+      working-directory: ${{ inputs.WORKING_DIR }}
+      shell: bash
+
     

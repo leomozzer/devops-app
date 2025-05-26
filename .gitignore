@@ -35,5 +35,5 @@ terraform.rc
 .terraform.lock.hcl
 *.plan
 *.zip
-
+dev.json
 
