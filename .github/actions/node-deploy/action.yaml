@@ -21,6 +21,11 @@ inputs:
     default: "./"
 
 runs:
+  # Permissions are crucial for downloading artifacts from another workflow run
+  permissions:
+    contents: read # Required to checkout the repository
+    actions: read  # Required to read workflow run artifacts
+    
   using: "composite"
   steps:
     - name: Azure Login

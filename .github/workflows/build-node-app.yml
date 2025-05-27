@@ -1,4 +1,4 @@
-name: 'Build NestJS App'
+name: '1 - Build NestJS App'
 on:
   workflow_dispatch:
 
