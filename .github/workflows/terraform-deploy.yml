@@ -1,27 +1,124 @@
+# .github/workflows/terraform-deploy.yml
 name: 'Terraform Deploy'
+
 on:
   workflow_dispatch:
-  workflow_call:
+    inputs:
+      deployment_stage: # Explicitly define for manual dispatch
+        description: 'Deployment Stage (e.g., dev, prod)'
+        required: true # Make required for dispatch too
+        type: string
+        default: 'dev'
+      tf_working_dir:
+        description: 'Working directory for Terraform operations'
+        required: true
+        type: string
+        default: './infra/environment/dev' # Provide a sensible default for manual runs
+      tf_state_resource_group_name:
+        description: 'Resource group name for Terraform state storage'
+        required: true
+        type: string
+        default: 'rg-tfstate' # Default for manual runs
+      tf_state_location:
+        description: 'Location for Terraform state resource group'
+        required: true
+        type: string
+        default: 'westeurope'
+      tf_state_storage_account_name:
+        description: 'Storage account name for Terraform state'
+        required: true
+        type: string
+        default: 'tftfstate001' # Ensure unique default for manual runs
+      tf_state_container_name:
+        description: 'Container name for Terraform state files'
+        required: false
+        type: string
+        default: 'states'
+      tf_state_file_name:
+        description: 'Name of the Terraform state file'
+        required: true
+        type: string
+        default: 'default.tfstate'
+      tags:
+        description: 'JSON string of tags to apply to resources'
+        required: false
+        type: string
+        default: '{}'
+      create_terraform_output:
+        description: 'Set to true to create a JSON output file after apply'
+        required: false
+        type: boolean
+        default: true
 
-env:
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  STA_RESOURCE_GROUP_NAME: rg-tfstate
-  RESOURCE_GROUP_LOCATION: westeurope
+  workflow_call:
+    inputs:
+      deployment_stage:
+        description: 'The deployment stage (e.g., dev, prod)'
+        required: true
+        type: string
+      tf_working_dir:
+        description: 'Working directory for Terraform operations'
+        required: true
+        type: string
+      tf_state_resource_group_name:
+        description: 'Resource group name for Terraform state storage'
+        required: true
+        type: string
+      tf_state_location:
+        description: 'Location for Terraform state resource group'
+        required: true
+        type: string
+      tf_state_storage_account_name:
+        description: 'Storage account name for Terraform state'
+        required: true
+        type: string
+      tf_state_container_name:
+        description: 'Container name for Terraform state files'
+        required: false
+        type: string
+        default: 'states'
+      tf_state_file_name:
+        description: 'Name of the Terraform state file'
+        required: true
+        type: string
+      tags:
+        description: 'JSON string of tags to apply to resources'
+        required: false
+        type: string
+        default: '{}'
+      create_terraform_output:
+        description: 'Set to true to create a JSON output file after apply'
+        required: false
+        type: boolean
+        default: true
+
+    secrets:
+      # Secrets must be explicitly listed here for workflow_call
+      arm_client_id:
+        description: 'Azure Service Principal Client ID'
+        required: true
+      arm_client_secret:
+        description: 'Azure Service Principal Client Secret'
+        required: true
+      arm_subscription_id:
+        description: 'Azure Subscription ID'
+        required: true
+      arm_tenant_id:
+        description: 'Azure Tenant ID'
+        required: true
+      azure_sp: # This is the full JSON Service Principal
+        description: 'Azure Service Principal JSON credentials'
+        required: true
+
+# NO TOP-LEVEL 'env' BLOCK HERE.
+# All dynamic values come from 'inputs' or 'secrets' directly.
 
 jobs:
   tfsec:
     name: "Aquasec TfSec"
-    strategy:
-      matrix:
-        stage: [dev]
+    # No matrix here; use the 'deployment_stage' input directly
     runs-on: ubuntu-latest
-    concurrency: ${{ matrix.stage }}
-    # permissions:
-    #   contents: read
-    #   pull-requests: write
+    concurrency: ${{ inputs.deployment_stage }} # Use input for concurrency
 
     steps:
       - name: Clone repo
@@ -36,81 +133,88 @@ jobs:
       - name: TfSec on terraform files
         run: |
           docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/environment/${{ matrix.stage }}:/src" aquasec/tfsec ./src
+          docker run --rm -v "$(pwd)/${{ inputs.tf_working_dir }}:/src" aquasec/tfsec ./src
           docker rmi "aquasec/tfsec:latest" -f | true
 
   plan:
     name: "Plan Job"
     needs: tfsec
-    strategy:
-      matrix:
-        stage: [dev]
     runs-on: ubuntu-latest
-    concurrency: ${{ matrix.stage }}
+    concurrency: ${{ inputs.deployment_stage }}
+
     steps:
     - uses: actions/checkout@v3
 
+    # Azure Login is crucial here, using the passed secret
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.azure_sp }}
+
     - uses: "./.github/actions/azure-backend"
       with:
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
-        RESOURCE_GROUP_LOCATION: ${{ env.RESOURCE_GROUP_LOCATION }}
-        TAGS: '"UseCase=Terraform" "Stage=${{ matrix.stage }}" "RunNumber=${{ github.run_number }}"'
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-        ENVIRONMENT: ${{ matrix.stage }}
+        AZURE_SP: ${{ secrets.azure_sp }}
+        RESOURCE_GROUP_NAME: "${{ inputs.tf_state_resource_group_name }}-${{ inputs.deployment_stage }}"
+        RESOURCE_GROUP_LOCATION: ${{ inputs.tf_state_location }}
+        TAGS: '${{ inputs.tags }}' # Use input directly
+        STORAGE_ACCOUNT_NAME: "${{ inputs.tf_state_storage_account_name }}"
+        ENVIRONMENT: ${{ inputs.deployment_stage }}
 
     - uses: "./.github/actions/terraform-plan"
       with:
-        WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-        CONTAINER_NAME: "states"
-        STATE_FILE: "${{ matrix.stage }}.tfstate"
-        STAGE: "${{ matrix.stage }}"
+        WORKING_DIR: "${{ inputs.tf_working_dir }}"
+        AZURE_SP: ${{ secrets.azure_sp }}
+        RESOURCE_GROUP_NAME: "${{ inputs.tf_state_resource_group_name }}-${{ inputs.deployment_stage }}"
+        STORAGE_ACCOUNT_NAME: "${{ inputs.tf_state_storage_account_name }}"
+        CONTAINER_NAME: "${{ inputs.tf_state_container_name }}"
+        STATE_FILE: "${{ inputs.tf_state_file_name }}"
+        STAGE: "${{ inputs.deployment_stage }}"
 
   apply:
     name: "Apply Job"
     needs: plan
-    strategy:
-      matrix:
-        stage: [dev]
     runs-on: ubuntu-latest
-    environment: ${{ matrix.stage }}
+    environment: ${{ inputs.deployment_stage }}
     defaults:
-     run:
-       shell: bash
-       # We keep Terraform files in the terraform directory.
-       working-directory: ./terraform-live
+      run:
+        shell: bash
+        # working-directory is handled by action inputs if they need it
     steps:
     - uses: actions/checkout@v3
 
+    # Azure Login again for this job
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.azure_sp }}
+
     - uses: "./.github/actions/terraform-apply"
       with:
-        WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-        STAGE: "${{ matrix.stage }}"
-        CREATE_OUTPUT: "true"
+        WORKING_DIR: "${{ inputs.tf_working_dir }}"
+        AZURE_SP: ${{ secrets.azure_sp }}
+        STORAGE_ACCOUNT_NAME: "${{ inputs.tf_state_storage_account_name }}"
+        STAGE: "${{ inputs.deployment_stage }}"
+        CREATE_OUTPUT: "${{ inputs.create_terraform_output }}"
 
   post_deployment:
     name: "Tasks performed after Terraform Apply"
     needs: [apply]
-    strategy:
-      matrix:
-        stage: [dev]
     runs-on: ubuntu-latest
-    environment: ${{ matrix.stage }}
+    environment: ${{ inputs.deployment_stage }}
     defaults:
-     run:
-       shell: bash
-       # We keep Terraform files in the terraform directory.
-       working-directory: ./terraform-live
+      run:
+        shell: bash
     steps:
     - uses: actions/checkout@v3
 
+    # Azure Login here too
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.azure_sp }}
+
     - uses: "./.github/actions/node-deploy"
       with:
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-        STAGE: "${{ matrix.stage }}"
+        AZURE_SP: ${{ secrets.azure_sp }}
+        STORAGE_ACCOUNT_NAME: "${{ inputs.tf_state_storage_account_name }}"
+        STAGE: "${{ inputs.deployment_stage }}"
