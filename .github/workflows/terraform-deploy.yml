@@ -1,6 +1,7 @@
 name: 'Terraform Deploy'
 on:
   workflow_dispatch:
+  workflow_call:
 
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
