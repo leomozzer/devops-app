@@ -1,6 +1,17 @@
 name: '3 - Deploy NestJS App'
 on:
   workflow_dispatch:
+    inputs:
+      # Define an input for the 'stage'
+      stage:
+        description: 'Select the deployment stage'
+        required: true # Make it required so the user must select one
+        default: 'dev' # Set 'dev' as the default option
+        type: choice
+        options:       # Provide the list of available options
+          - dev
+          - test
+          - prod
   workflow_run:
     workflows: ["2 - Terraform Deploy"] # Name of the producer workflow
     types:

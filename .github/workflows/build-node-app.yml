@@ -1,6 +1,17 @@
 name: '1 - Build NestJS App'
 on:
   workflow_dispatch:
+    inputs:
+      # Define an input for the 'stage'
+      stage:
+        description: 'Select the deployment stage'
+        required: true # Make it required so the user must select one
+        default: 'dev' # Set 'dev' as the default option
+        type: choice
+        options:       # Provide the list of available options
+          - dev
+          - test
+          - prod
 
 jobs:
   build_app:
@@ -21,7 +32,9 @@ jobs:
       with:
         WORKING_DIR: "./backend"
 
-#   terraform_deploy:
-#     name: 'Terraform Deploy'
-#     needs: build_app
-#     uses: ./.github/workflows/terraform-deploy.yml
+  terraform_deploy:
+    name: 'Terraform Deploy'
+    needs: build_app
+    uses: ./.github/workflows/terraform-deploy.yml@main
+    with:
+      stage: ${{ matrix.stage }}

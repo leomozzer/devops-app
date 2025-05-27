@@ -2,10 +2,28 @@ name: '2 - Terraform Deploy'
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["1 - Build NestJS App"] # Name of the producer workflow
-    types:
-      - completed # Trigger when the producer workflow completes
+    inputs:
+      # Define an input for the 'stage'
+      stage:
+        description: 'Select the deployment stage'
+        required: true # Make it required so the user must select one
+        default: 'dev' # Set 'dev' as the default option
+        type: choice
+        options:       # Provide the list of available options
+          - dev
+          - test
+          - prod
+  # workflow_run:
+  #   workflows: ["1 - Build NestJS App"] # Name of the producer workflow
+  #   types:
+  #     - completed # Trigger when the producer workflow completes
+  workflow_call:
+    inputs:
+      stage: # This input will receive the stage from the Orchestrator workflow
+        description: 'The deployment stage to build for'
+        required: true
+        type: string
+        default: 'dev'
 
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -20,7 +38,7 @@ jobs:
     name: "Aquasec TfSec"
     strategy:
       matrix:
-        stage: [dev]
+        stage: ["${{ inputs.stage }}"]
     runs-on: ubuntu-latest
     concurrency: ${{ matrix.stage }}
     # permissions:
@@ -54,14 +72,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: "./.github/actions/azure-backend"
-      with:
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
-        RESOURCE_GROUP_LOCATION: ${{ env.RESOURCE_GROUP_LOCATION }}
-        TAGS: '"UseCase=Terraform" "Stage=${{ matrix.stage }}" "RunNumber=${{ github.run_number }}"'
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-        ENVIRONMENT: ${{ matrix.stage }}
+    # - uses: "./.github/actions/azure-backend"
+    #   with:
+    #     AZURE_SP: ${{ secrets.AZURE_SP }}
+    #     RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
+    #     RESOURCE_GROUP_LOCATION: ${{ env.RESOURCE_GROUP_LOCATION }}
+    #     TAGS: '"UseCase=Terraform" "Stage=${{ matrix.stage }}" "RunNumber=${{ github.run_number }}"'
+    #     STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
+    #     ENVIRONMENT: ${{ matrix.stage }}
 
     - uses: "./.github/actions/terraform-plan"
       with:
