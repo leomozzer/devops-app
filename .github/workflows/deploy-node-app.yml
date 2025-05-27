@@ -63,7 +63,6 @@ jobs:
       run:
         shell: bash
            # We keep Terraform files in the terraform directory.
-        working-directory: ./terraform-live
     steps:
     - uses: actions/checkout@v3
     
