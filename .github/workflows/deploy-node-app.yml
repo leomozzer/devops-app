@@ -13,7 +13,7 @@ jobs:
       contents: read # Required to checkout the repository
       actions: read  # Required to read workflow run artifacts
     
-    name: "Tasks performed after Terraform Apply"
+    name: "Deploy NestJS"
     strategy:
       matrix:
         stage: [dev]
