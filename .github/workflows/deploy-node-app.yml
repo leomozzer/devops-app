@@ -1,0 +1,30 @@
+name: 'Deploy NestJS App'
+on:
+  workflow_dispatch:
+
+jobs:
+  post_deployment:
+    # Permissions are crucial for downloading artifacts from another workflow run
+    permissions:
+      contents: read # Required to checkout the repository
+      actions: read  # Required to read workflow run artifacts
+    
+    name: "Tasks performed after Terraform Apply"
+    strategy:
+      matrix:
+        stage: [dev]
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.stage }}
+    defaults:
+      run:
+        shell: bash
+           # We keep Terraform files in the terraform directory.
+        working-directory: ./terraform-live
+    steps:
+    - uses: actions/checkout@v3
+    
+    - uses: "./.github/actions/node-deploy"
+      with:
+        AZURE_SP: ${{ secrets.AZURE_SP }}
+        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
+        STAGE: "${{ matrix.stage }}"
