@@ -22,4 +22,5 @@ jobs:
         WORKING_DIR: "./backend"
 
   terraform_deploy:
+    needs: build_app
     uses: ./.github/workflows/terraform-deploy.yml
