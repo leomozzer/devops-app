@@ -18,7 +18,7 @@ on:
       - completed # Trigger when the producer workflow completes
 
 jobs:
-  post_deployment:
+  deploy_app:
     # Permissions are crucial for downloading artifacts from another workflow run
     permissions:
       contents: read # Required to checkout the repository

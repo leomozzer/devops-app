@@ -13,17 +13,10 @@ on:
           - dev
           - test
           - prod
-  # workflow_run:
-  #   workflows: ["1 - Build NestJS App"] # Name of the producer workflow
-  #   types:
-  #     - completed # Trigger when the producer workflow completes
-  workflow_call:
-    inputs:
-      stage: # This input will receive the stage from the Orchestrator workflow
-        description: 'The deployment stage to build for'
-        required: true
-        type: string
-        default: 'dev'
+  workflow_run:
+    workflows: ["1 - Build NestJS App"] # Name of the producer workflow
+    types:
+      - completed # Trigger when the producer workflow completes
 
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -34,16 +27,45 @@ env:
   RESOURCE_GROUP_LOCATION: westeurope
 
 jobs:
+  get_env:
+    name: "Get current environment"
+    runs-on: ubuntu-latest
+    # Define outputs for this job
+    outputs:
+      # 'env_value_for_other_jobs' is the name of the job output
+      # It takes the value from the step 'read_file_step's output 'environment_value'
+      env_value_for_other_jobs: ${{ steps.read_env_file.outputs.environment_value }}
+    steps:  
+    - name: Download artifact
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v9
+      with:
+        name: environment
+        workflow: build-node-app.yml
+
+    - name: Read file content into a variable and set as step output
+      id: read_env_file # Give this step an ID to reference its outputs
+      run: |
+        # Read the content of the file into a bash variable
+        FILE_CONTENT=$(cat environment_info.txt)
+        
+        echo "Content read into shell variable: $FILE_CONTENT"
+        
+        # Set this content as a step output
+        # This makes the content available to subsequent steps in the same job
+        echo "environment_value=$FILE_CONTENT" >> "$GITHUB_OUTPUT"
+
   tfsec:
     name: "Aquasec TfSec"
-    strategy:
-      matrix:
-        stage: ["${{ inputs.stage }}"]
+    # strategy:
+    #   matrix:
+    #     stage: ["${{ inputs.stage }}"]
     runs-on: ubuntu-latest
-    concurrency: ${{ matrix.stage }}
+    # concurrency: ${{ matrix.stage }}
     # permissions:
     #   contents: read
     #   pull-requests: write
+    needs: get_env
 
     steps:
       - name: Clone repo
@@ -58,15 +80,15 @@ jobs:
       - name: TfSec on terraform files
         run: |
           docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/environment/${{ matrix.stage }}:/src" aquasec/tfsec ./src
+          docker run --rm -v "$(pwd)/infra/environment/${{ needs.get_env.outputs.env_value_for_other_jobs }}:/src" aquasec/tfsec ./src
           docker rmi "aquasec/tfsec:latest" -f | true
 
   plan:
     name: "Plan Job"
-    needs: tfsec
+    needs: [tfsec, get_env]
     strategy:
       matrix:
-        stage: [dev]
+        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
     runs-on: ubuntu-latest
     concurrency: ${{ matrix.stage }}
     steps:
@@ -93,10 +115,10 @@ jobs:
 
   apply:
     name: "Apply Job"
-    needs: plan
+    needs: [plan, get_env]
     strategy:
       matrix:
-        stage: [dev]
+        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
     runs-on: ubuntu-latest
     environment: ${{ matrix.stage }}
     defaults:

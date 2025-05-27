@@ -1,0 +1,28 @@
+name: "Create Environment File"
+description: "This action will create a simple txt file that represents the current stage"
+
+inputs:
+  ENVIRONMENT:
+    description: "Directory where the app is located"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Create deployment zip artifact
+      run: |
+        # The value of your ENVIRONMENT input will be written directly into the file
+        echo "${{ inputs.ENVIRONMENT }}" > environment_info.txt
+        
+        # Optional: Verify the file content
+        echo "Content of environment_info.txt:"
+        cat environment_info.txt
+        ls -la environment_info.txt # To show the file was created
+      shell: bash
+    
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v4
+      with:
+        name: environment
+        path: ./environment_info.txt
+        retention-days: 5
