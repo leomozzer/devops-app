@@ -35,6 +35,6 @@ jobs:
   terraform_deploy:
     name: 'Terraform Deploy'
     needs: build_app
-    uses: ./.github/workflows/terraform-deploy.yml@main
+    uses: ./.github/workflows/terraform-deploy.yml
     with:
       stage: ${{ matrix.stage }}
