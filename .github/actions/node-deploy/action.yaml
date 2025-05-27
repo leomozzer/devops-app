@@ -28,8 +28,15 @@ runs:
       with:
         creds: ${{ inputs.AZURE_SP }}
 
-    - name: Download a single artifact
-      uses: actions/download-artifact@v4
+    # - name: Download a single artifact
+    #   uses: actions/download-artifact@v4
+    #   with:
+    #     name: deploy
+    #     workflow: build-node-app.yml
+
+    - name: Download artifact
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v9
       with:
         name: deploy
         workflow: build-node-app.yml
