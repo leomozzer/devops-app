@@ -12,6 +12,7 @@ on:
           - dev
           - test
           - prod
+  workflow_call:
 
 jobs:
   build_app:
