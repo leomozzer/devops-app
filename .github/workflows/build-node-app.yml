@@ -18,7 +18,7 @@ jobs:
     name: "Build NodeJS App"
     strategy:
       matrix:
-        stage: [dev]
+        stage: ["${{ inputs.stage }}"]
     runs-on: ubuntu-latest
     environment: ${{ matrix.stage }}
     defaults:
@@ -37,4 +37,4 @@ jobs:
     needs: build_app
     uses: ./.github/workflows/terraform-deploy.yml
     with:
-      stage: ${{ matrix.stage }}
+      stage: ${{ inputs.stage }}
