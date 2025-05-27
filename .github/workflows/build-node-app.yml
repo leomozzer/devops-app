@@ -1,4 +1,4 @@
-name: 'Terraform Deploy'
+name: 'Build NestJS App'
 on:
   workflow_dispatch:
 
@@ -20,3 +20,6 @@ jobs:
     - uses: "./.github/actions/node-build"
       with:
         WORKING_DIR: "./backend"
+
+  terraform_deploy:
+    uses: ./.github/workflows/terraform-deploy.yml
