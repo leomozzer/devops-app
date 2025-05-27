@@ -18,6 +18,34 @@ on:
       - completed # Trigger when the producer workflow completes
 
 jobs:
+  get_env:
+    name: "Get current environment"
+    runs-on: ubuntu-latest
+    # Define outputs for this job
+    outputs:
+      # 'env_value_for_other_jobs' is the name of the job output
+      # It takes the value from the step 'read_env_file's output 'environment_value'
+      env_value_for_other_jobs: ${{ steps.read_env_file.outputs.environment_value }}
+    steps:  
+    - name: Download artifact
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v9
+      with:
+        name: environment
+        workflow: build-node-app.yml
+
+    - name: Read file content into a variable and set as step output
+      id: read_env_file # Give this step an ID to reference its outputs
+      run: |
+        # Read the content of the file into a bash variable
+        FILE_CONTENT=$(cat environment_info.txt)
+        
+        echo "Content read into shell variable: $FILE_CONTENT"
+        
+        # Set this content as a step output
+        # This makes the content available to subsequent steps in the same job
+        echo "environment_value=$FILE_CONTENT" >> "$GITHUB_OUTPUT"
+
   deploy_app:
     # Permissions are crucial for downloading artifacts from another workflow run
     permissions:
@@ -25,11 +53,12 @@ jobs:
       actions: read  # Required to read workflow run artifacts
     
     name: "Deploy NestJS"
+    needs: get_env
     strategy:
       matrix:
-        stage: [dev]
+        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
     runs-on: ubuntu-latest
-    environment: ${{ matrix.stage }}
+    concurrency: ${{ matrix.stage }}
     defaults:
       run:
         shell: bash

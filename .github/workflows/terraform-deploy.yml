@@ -34,7 +34,7 @@ jobs:
     # Define outputs for this job
     outputs:
       # 'env_value_for_other_jobs' is the name of the job output
-      # It takes the value from the step 'read_file_step's output 'environment_value'
+      # It takes the value from the step 'read_env_file's output 'environment_value'
       env_value_for_other_jobs: ${{ steps.read_env_file.outputs.environment_value }}
     steps:  
     - name: Download artifact
@@ -58,15 +58,12 @@ jobs:
 
   tfsec:
     name: "Aquasec TfSec"
-    # strategy:
-    #   matrix:
-    #     stage: ["${{ inputs.stage }}"]
-    runs-on: ubuntu-latest
-    # concurrency: ${{ matrix.stage }}
-    # permissions:
-    #   contents: read
-    #   pull-requests: write
     needs: get_env
+    strategy:
+      matrix:
+        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
+    runs-on: ubuntu-latest
+    concurrency: ${{ matrix.stage }}
 
     steps:
       - name: Clone repo
@@ -94,15 +91,6 @@ jobs:
     concurrency: ${{ matrix.stage }}
     steps:
     - uses: actions/checkout@v3
-
-    # - uses: "./.github/actions/azure-backend"
-    #   with:
-    #     AZURE_SP: ${{ secrets.AZURE_SP }}
-    #     RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
-    #     RESOURCE_GROUP_LOCATION: ${{ env.RESOURCE_GROUP_LOCATION }}
-    #     TAGS: '"UseCase=Terraform" "Stage=${{ matrix.stage }}" "RunNumber=${{ github.run_number }}"'
-    #     STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-    #     ENVIRONMENT: ${{ matrix.stage }}
 
     - uses: "./.github/actions/terraform-plan"
       with:
