@@ -1,6 +1,10 @@
 name: 'Deploy NestJS App'
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Terraform Deploy"] # Name of the producer workflow
+    types:
+      - completed # Trigger when the producer workflow completes
 
 jobs:
   post_deployment:
