@@ -17,6 +17,7 @@ on:
     workflows: ["1 - Build NestJS App"] # Name of the producer workflow
     types:
       - completed # Trigger when the producer workflow completes
+  workflow_call:
 
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
