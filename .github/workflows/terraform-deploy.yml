@@ -34,27 +34,6 @@ jobs:
           docker run --rm -v "$(pwd)/infra/environment/${{ matrix.stage }}:/src" aquasec/tfsec ./src
           docker rmi "aquasec/tfsec:latest" -f | true
 
-  build_app:
-    name: "Build NodeJS App"
-    needs: tfsec
-    strategy:
-      matrix:
-        stage: [dev]
-    runs-on: ubuntu-latest
-    environment: ${{ matrix.stage }}
-    defaults:
-     run:
-       shell: bash
-       # We keep Terraform files in the terraform directory.
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: "./.github/actions/node-build"
-      with:
-        WORKING_DIR: "./backend"
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-
   plan:
     name: "Plan Job"
     needs: tfsec
@@ -111,7 +90,7 @@ jobs:
 
   post_deployment:
     name: "Tasks performed after Terraform Apply"
-    needs: [apply, build_app]
+    needs: [apply]
     strategy:
       matrix:
         stage: [dev]

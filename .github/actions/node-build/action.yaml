@@ -2,9 +2,6 @@ name: "NestJS Build App"
 description: "Perform the build and test of the NestJS App"
 
 inputs:
-  AZURE_SP:
-    description: "Credentials of the Azure SP"
-    required: true
   NODE_VERSION:
     description: "NodeJS Version"
     required: false
@@ -16,25 +13,25 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ inputs.AZURE_SP }}
-
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{inputs.NODE_VERSION}}
 
-    - run: npm i
+    - name: "Install Modules" 
+      run: npm i
       working-directory: ${{inputs.WORKING_DIR}}
       shell: bash
 
-    - run: npm run build
+    - name: "Test App" 
+      run: npm test
       working-directory: ${{inputs.WORKING_DIR}}
       shell: bash
-    # - run: npm test
-    #   shell: bash
+
+    - name: "Build App" 
+      run: npm run build
+      working-directory: ${{inputs.WORKING_DIR}}
+      shell: bash
 
     - name: Create deployment zip artifact
       run: |
