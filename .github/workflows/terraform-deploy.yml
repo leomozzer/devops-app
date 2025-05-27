@@ -14,7 +14,11 @@ env:
 jobs:
   tfsec:
     name: "Aquasec TfSec"
+    strategy:
+      matrix:
+        stage: [dev]
     runs-on: ubuntu-latest
+    concurrency: ${{ matrix.stage }}
     # permissions:
     #   contents: read
     #   pull-requests: write
