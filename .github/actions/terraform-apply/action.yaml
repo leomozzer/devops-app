@@ -81,11 +81,6 @@ runs:
       run: terraform apply -lock-timeout=10m "${{ inputs.STAGE }}.plan"
       working-directory: ./
 
-    # - name: Terraform Apply
-    #   shell: bash
-    #   run: terraform output -json > "${{ inputs.STAGE }}.json" 2>/dev/null
-    #   working-directory: ./
-
     - name: Save Terraform Outputs as JSON
       # Ensure you are in the correct directory where your main.tf is located for terraform output
       # working-directory: ./path/to/your/terraform/root # Uncomment/adjust if your Terraform code is not at the repo root

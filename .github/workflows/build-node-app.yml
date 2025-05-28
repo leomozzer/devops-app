@@ -12,7 +12,6 @@ on:
           - dev
           - test
           - prod
-  workflow_call:
 
 jobs:
   build_app:
@@ -36,10 +35,3 @@ jobs:
     - uses: "./.github/actions/node-build"
       with:
         WORKING_DIR: "./backend"
-
-  # terraform_deploy:
-  #   name: 'Terraform Deploy'
-  #   needs: build_app
-  #   uses: ./.github/workflows/terraform-deploy.yml
-  #   with:
-  #     stage: ${{ inputs.stage }}
