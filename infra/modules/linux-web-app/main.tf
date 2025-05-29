@@ -8,15 +8,15 @@ resource "azurerm_resource_group" "rg" {
 
 resource "azurerm_service_plan" "service_plan" {
   name                = local.app_service_plan_name
-  resource_group_name = length(var.resource_group_name) > 0 ? var.resource_group_name : azurerm_resource_group[0].rg.name
-  location            = length(var.resource_group_name) > 0 ? var.location : azurerm_resource_group[0].rg.location
+  resource_group_name = length(var.resource_group_name) > 0 ? var.resource_group_name : azurerm_resource_group.rg[0].name
+  location            = length(var.resource_group_name) > 0 ? var.location : azurerm_resource_group.rg[0].location
   os_type             = "Linux"
   sku_name            = var.app_service_sku_name
 }
 
 resource "azurerm_linux_web_app" "web_app" {
   name                = local.web_app_name
-  resource_group_name = length(var.resource_group_name) > 0 ? var.resource_group_name : azurerm_resource_group[0].rg.name
+  resource_group_name = length(var.resource_group_name) > 0 ? var.resource_group_name : azurerm_resource_group.rg[0].name
   location            = azurerm_service_plan.service_plan.location
   service_plan_id     = azurerm_service_plan.service_plan.id
 
