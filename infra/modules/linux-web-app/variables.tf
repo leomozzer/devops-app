@@ -8,6 +8,11 @@ variable "environment" {
   default = "dev"
 }
 
+variable "resource_group_name" {
+  type    = string
+  default = ""
+}
+
 variable "app_name" {
   type = string
 }
@@ -27,4 +32,19 @@ variable "tags" {
 variable "app_service_sku_name" {
   type    = string
   default = "B1"
+}
+
+variable "log_analytics_workspace_id" {
+  type    = string
+  default = ""
+}
+
+variable "enable_diagnostic_setting_app_service_plan" {
+  type    = bool
+  default = true
+}
+
+variable "enable_diagnostic_setting_web_app" {
+  type    = bool
+  default = true
 }

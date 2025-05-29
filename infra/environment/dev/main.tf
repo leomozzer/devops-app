@@ -1,7 +1,13 @@
+module "resource_group" {
+  source = "../../modules/resource-group"
+  name   = "backend"
+  prefix = "002"
+}
+
 module "backend_app_service" {
-  source   = "../../modules/linux-web-app"
-  app_name = "backend"
-  prefix   = "002"
+  source              = "../../modules/linux-web-app"
+  app_name            = "backend"
+  resource_group_name = module.resource_group.output.name
 }
 
 output "app_service" {
