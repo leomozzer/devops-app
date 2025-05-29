@@ -1,5 +1,5 @@
 output "resource_group_name" {
-  value = azurerm_resource_group.rg.name
+  value = length(var.resource_group_name) > 0 ? var.resource_group_name : azurerm_resource_group.rg[0].name
 }
 
 output "service_plan_name" {

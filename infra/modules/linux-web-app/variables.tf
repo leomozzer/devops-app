@@ -48,3 +48,13 @@ variable "enable_diagnostic_setting_web_app" {
   type    = bool
   default = true
 }
+
+variable "node_version" {
+  type    = string
+  default = "20-lts"
+}
+
+variable "app_command_line" {
+  type    = string
+  default = "npm run start:prod"
+}
