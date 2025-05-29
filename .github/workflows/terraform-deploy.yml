@@ -30,6 +30,7 @@ jobs:
   get_env:
     name: "Get current environment"
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     # Define outputs for this job
     outputs:
       # 'env_value_for_other_jobs' is the name of the job output
