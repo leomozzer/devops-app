@@ -45,6 +45,11 @@ runs:
       shell: bash
       working-directory: ${{ inputs.WORKING_DIR }}
 
+    - name: Ensure ${{ inputs.STAGE }}.tfvars exists
+      shell: bash
+      run: |
+        touch ${{ inputs.WORKING_DIR }}/${{ inputs.STAGE }}.tfvars
+
     - name: Download ${{ inputs.STAGE }}.tfvars
       uses: azure/CLI@v1
       with:
@@ -56,12 +61,6 @@ runs:
           --name ${{ inputs.STAGE }}.tfvars \
           --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
           --container-name plans
-
-    - name: Ensure ${{ inputs.STAGE }}.tfvars exists
-      shell: bash
-      run: |
-        set -e
-        touch ${{ inputs.WORKING_DIR }}/${{ inputs.STAGE }}.tfvars
 
     - name: Create backend file
       shell: pwsh
