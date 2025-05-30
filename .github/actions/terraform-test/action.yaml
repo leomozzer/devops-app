@@ -76,7 +76,7 @@ runs:
     - name: Copy test folder to ${{ inputs.STAGE }}
       id: copy_folder
       run: |
-        cp -r infra/tests/ infra/environment/${{ inputs.STAGE }}.tfvars/
+        cp -r infra/tests/ infra/environment/${{ inputs.STAGE }}/
       shell: bash
         
 
