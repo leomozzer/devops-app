@@ -14,7 +14,7 @@ on:
           - test
           - prod
   workflow_run:
-    workflows: ["1 - Build NestJS App"] # Name of the producer workflow
+    workflows: ["2 - Terraform Tests"] # Name of the producer workflow
     types:
       - completed # Trigger when the producer workflow completes
 

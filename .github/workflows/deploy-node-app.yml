@@ -1,4 +1,4 @@
-name: '3 - Deploy NestJS App'
+name: '4 - Deploy NestJS App'
 on:
   workflow_dispatch:
     inputs:
