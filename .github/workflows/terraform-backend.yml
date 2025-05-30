@@ -20,7 +20,7 @@ env:
 
 jobs:
   backend:
-    name: "Plan Job"
+    name: "Create Azure"
     strategy:
       matrix:
         stage: ["${{ inputs.stage }}"]

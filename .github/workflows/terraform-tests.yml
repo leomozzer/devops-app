@@ -1,4 +1,4 @@
-name: '3 - Terraform Deploy'
+name: '2 - Terraform Tests'
 
 on:
   workflow_dispatch:
@@ -69,10 +69,16 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v3
 
-      - name: TfSec on modules
+      - name: TfSec on module linux-web-app
         run: |
           docker pull aquasec/tfsec:latest
           docker run --rm -v "$(pwd)/infra/modules/linux-web-app:/src" aquasec/tfsec ./src
+          docker rmi "aquasec/tfsec:latest" -f | true
+
+      - name: TfSec on module resource-group
+        run: |
+          docker pull aquasec/tfsec:latest
+          docker run --rm -v "$(pwd)/infra/modules/resource-group:/src" aquasec/tfsec ./src
           docker rmi "aquasec/tfsec:latest" -f | true
 
       - name: TfSec on terraform files
@@ -81,8 +87,8 @@ jobs:
           docker run --rm -v "$(pwd)/infra/environment/${{ needs.get_env.outputs.env_value_for_other_jobs }}:/src" aquasec/tfsec ./src
           docker rmi "aquasec/tfsec:latest" -f | true
 
-  plan:
-    name: "Plan Job"
+  tftest:
+    name: "Terraform test"
     needs: [tfsec, get_env]
     strategy:
       matrix:
@@ -92,7 +98,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: "./.github/actions/terraform-plan"
+    - uses: "./.github/actions/terraform-test"
       with:
         WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
         AZURE_SP: ${{ secrets.AZURE_SP }}
@@ -101,27 +107,3 @@ jobs:
         CONTAINER_NAME: "states"
         STATE_FILE: "${{ matrix.stage }}.tfstate"
         STAGE: "${{ matrix.stage }}"
-
-  apply:
-    name: "Apply Job"
-    needs: [plan, get_env]
-    strategy:
-      matrix:
-        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
-    runs-on: ubuntu-latest
-    environment: ${{ matrix.stage }}
-    defaults:
-     run:
-       shell: bash
-       # We keep Terraform files in the terraform directory.
-       working-directory: ./terraform-live
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: "./.github/actions/terraform-apply"
-      with:
-        WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-        STAGE: "${{ matrix.stage }}"
-        CREATE_OUTPUT: "true"

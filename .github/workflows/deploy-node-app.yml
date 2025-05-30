@@ -13,7 +13,7 @@ on:
           - test
           - prod
   workflow_run:
-    workflows: ["2 - Terraform Deploy"] # Name of the producer workflow
+    workflows: ["3 - Terraform Deploy"] # Name of the producer workflow
     types:
       - completed # Trigger when the producer workflow completes
 
