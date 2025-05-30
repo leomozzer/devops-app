@@ -12,13 +12,25 @@ on:
           - dev
           - test
           - prod
+  # NEW TRIGGER: Trigger on push to the 'dev' branch
+  push:
+    branches:
+      - dev 
 
 jobs:
   build_app:
     name: "Build NodeJS App"
     strategy:
       matrix:
-        stage: ["${{ inputs.stage }}"]
+        stage:  # If triggered by workflow_dispatch, use the user's input
+        # If triggered by workflow_dispatch, use the user's input
+        - ${{ github.event_name == 'workflow_dispatch' && inputs.stage || (github.event_name == 'push' && github.ref_name == 'dev' && 'dev') }}
+          # If triggered by a push to 'dev', set stage to 'dev'
+          
+          # Add more conditions here if you have other push branches for different stages
+          # For example, if push to 'main' should imply 'prod':
+          # || (github.event_name == 'push' && github.ref_name == 'main' && 'prod')
+
     runs-on: ubuntu-latest
     environment: ${{ matrix.stage }}
     defaults:
