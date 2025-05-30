@@ -82,7 +82,7 @@ runs:
 
     - name: Terraform Test
       id: plan
-      run: terraform tests -var-file="${{ inputs.STAGE }}.tfvars" -verbose
+      run: terraform test -var-file="${{ inputs.STAGE }}.tfvars" -verbose
       continue-on-error: false
       shell: bash
       working-directory: ${{ inputs.WORKING_DIR }}
