@@ -42,7 +42,7 @@ jobs:
 
     - uses: "./.github/actions/created-stage-file"
       with:
-        ENVIRONMENT: ${{ inputs.stage }}
+        ENVIRONMENT: ${{ matrix.stage }}
 
     - uses: "./.github/actions/node-build"
       with:
